@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Over Time Calculator</title>
+    <style>
+        .outer-container {
+            margin: 0 100px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="outer-container">
+        <div class="container">
+            <h3>Over Time Calculator</h3>
+            <div class="input-group">
+                <label for="salary">Salary: </label>
+                <input type="text" name="" id="salary" class="over-time-text-inputs"
+                    placeholder="Salary. example: 10000" />
+            </div>
+            <div class="input-group">
+                <label for="month">Month: </label>
+                <select id="month" class="over-time-select-inputs">
+                    <option value="0">Select Month</option>
+                    <!-- options will be appened using javascript -->
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="overTimeInHours">Over Time in Hours: </label>
+                <input type="text" id="overTimeInHours" class="over-time-text-inputs"
+                    placeholder="Over Time. example: 8" />
+            </div>
+            <div class="input-group">
+                <label for="label">Working Hours: </label>
+                <input type="text" id="workingHours" value="8" disabled />
+            </div>
+            <div class="input-group">
+                <label for="label">Over Time Bonus: </label>
+                <input type="text" id="overTimeBonus" value="1.5" disabled />
+            </div>
+            <div class="input-group">
+                <label for="overTimePayment">Over Time Payment: </label>
+                <input id="overTimePayment" value="" disabled />
+            </div>
+        </div>
+    </div>
+    <script>
+        /* helper functions and variables */
+        const d = document;
+        const qs = "querySelector";
+        const qsa = "querySelectorAll";
+
+        const getMonthName = (monthNumber) => {
+            if (monthNumber >= 1 && monthNumber <= 12) {
+                const date = new Date(0, monthNumber - 1);
+                return date.toLocaleString("default", { month: "long" });
+            }
+        };
+        const getDaysInMonth = (monthNumber) => {
+            if (monthNumber >= 1 && monthNumber <= 12) {
+                const year = new Date().getFullYear(); // Use the current year or specify a year.
+                const lastDay = new Date(year, monthNumber, 0).getDate();
+                return lastDay;
+            } else {
+                console.error("Invalid month number");
+            }
+        };
+        const calculateOverTimePayment = () => {
+            const salary = d[qs]("#salary").value ?? 0;
+            const monthNumber =
+                d[qs]("#month").value == 0
+                    ? new Date().getMonth() + 1
+                    : d[qs]("#month").value;
+            const daysOfMonth = getDaysInMonth(monthNumber);
+
+            const overTimeInHours = d[qs]("#overTimeInHours").value ?? 0;
+
+            const workingHours = d[qs]("#workingHours").value ?? 0;
+            const overTimeBonus = d[qs]("#overTimeBonus").value ?? 0;
+            return (
+                (salary / daysOfMonth / workingHours) *
+                overTimeInHours *
+                overTimeBonus
+            );
+        };
+        const updateOverTimePaymentInDom = () => {
+            const overTimePayment = calculateOverTimePayment();
+            d[qs]("#overTimePayment").value = overTimePayment.toFixed(2);
+        };
+
+        /* driver code */
+        let monthOptions = "";
+        for (let monthNumber = 1; monthNumber <= 12; monthNumber++) {
+            const monthName = getMonthName(monthNumber);
+            monthOptions += `\n<option value=${monthNumber}>${monthName}</option>`;
+        }
+
+        const monthSelectEl = d[qs]("#month");
+        monthSelectEl.insertAdjacentHTML("beforeend", monthOptions);
+
+        const overTimeTextInputs = d[qsa](".over-time-text-inputs");
+        for (const overTimeTextInput of overTimeTextInputs) {
+            overTimeTextInput.addEventListener("keyup", updateOverTimePaymentInDom);
+        }
+        const overTimeSelectInputs = d[qsa](".over-time-select-inputs");
+        for (const overTimeSelectInput of overTimeSelectInputs) {
+            overTimeSelectInput.addEventListener(
+                "change",
+                updateOverTimePaymentInDom
+            );
+        }
+    </script>
+</body>
+
+</html>
